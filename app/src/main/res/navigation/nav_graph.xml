@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/CalendarFragment">
+
+    <fragment
+        android:id="@+id/CalendarFragment"
+        android:name="com.example.rehabcalculator.ui.main.CalendarFragment"
+        android:label="CalendarFragment"
+        tools:layout="@layout/calendar_fragment">
+
+        <action
+            android:id="@+id/action_Calendar_to_Add"
+            app:destination="@id/AddFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/AddFragment"
+        android:name="com.example.rehabcalculator.ui.main.AddFragment"
+        android:label="AddFragment"
+        tools:layout="@layout/add_fragment">
+
+        <action
+            android:id="@+id/action_Add_to_Calendar"
+            app:destination="@id/CalendarFragment" />
+    </fragment>
+</navigation>

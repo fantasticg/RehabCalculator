@@ -7,14 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.rehabcalculator.R;
-import com.example.rehabcalculator.ui.main.content.CenterContent;
-import com.example.rehabcalculator.ui.main.content.RehabCenterInfoItem;
+import com.example.rehabcalculator.ui.main.content.CenterContents;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -69,29 +70,30 @@ public class CalendarFragment extends Fragment {
 
         mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-
-
     }
-
-    private RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_calendar_list, container, false);
+        View view = inflater.inflate(R.layout.calendar_fragment, container, false);
 
 
-        for(int i = 1; i<= 31; i++) {
-            CenterContent.addItem(mViewModel, CenterContent.createRehabCenterItem(i, "center"+i, 1000, null));
-        }
+        FloatingActionButton fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(clickview ->{
+            NavHostFragment.findNavController(CalendarFragment.this)
+                    .navigate(R.id.action_Calendar_to_Add);
+        } );
+
+        FloatingActionButton cal = view.findViewById(R.id.cal);
+        cal.setOnClickListener(clickview -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
 
 
         // Set the adapter
         if (view.findViewById(R.id.list) instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            recyclerView.setAdapter(new MyCalendarRecyclerViewAdapter(requireActivity(), mViewModel.getCenterList(), mListener, 8));
+            RecyclerView recyclerView = view.findViewById(R.id.list) ;
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), mColumnCount));
+            recyclerView.setAdapter(new MyCalendarRecyclerViewAdapter(requireActivity(), mViewModel.getContentsItem(), mListener, 8));
         }
 
 
@@ -127,6 +129,6 @@ public class CalendarFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(RehabCenterInfoItem item);
+        void onListFragmentInteraction(CenterContents item);
     }
 }

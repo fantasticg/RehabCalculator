@@ -8,26 +8,26 @@ import android.widget.TextView;
 
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.CalendarFragment.OnListFragmentInteractionListener;
-import com.example.rehabcalculator.ui.main.content.RehabCenterInfoItem;
+import com.example.rehabcalculator.ui.main.content.CenterContents;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalendarRecyclerViewAdapter.ViewHolder> {
 
-    private final List<RehabCenterInfoItem> mValues;
+    private final ArrayList<CenterContents> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context mContext;
     private final int mMonth;
     private final int mdaysHeader = 7;
     private int mStartDayPosition;
 
-    public MyCalendarRecyclerViewAdapter(Context context, List<RehabCenterInfoItem> items, OnListFragmentInteractionListener listener, int month) {
+    public MyCalendarRecyclerViewAdapter(Context context, ArrayList<CenterContents> items, OnListFragmentInteractionListener listener, int month) {
         mContext = context;
         mValues = items;
         mListener = listener;
@@ -51,7 +51,7 @@ public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalend
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_calendar, parent, false);
+                .inflate(R.layout.calendar_griditemview, parent, false);
         return new ViewHolder(view);
     }
 
@@ -67,17 +67,14 @@ public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalend
         } else {
             int nPosition = position - mdaysHeader - mStartDayPosition;
             holder.mItem = mValues.get(nPosition);
-            holder.mDayView.setText(String.valueOf(mValues.get(nPosition).day));
-            holder.mContentView.setText(mValues.get(nPosition).cenetrName);
+            holder.mDayView.setText(String.valueOf(mValues.get(nPosition).getDay()));
+            holder.mContentView.setText(mValues.get(nPosition).getCenterName());
 
-            holder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != mListener) {
-                        // Notify the active callbacks interface (the activity, if the
-                        // fragment is attached to one) that an item has been selected.
-                        mListener.onListFragmentInteraction(holder.mItem);
-                    }
+            holder.mView.setOnClickListener(v -> {
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.onListFragmentInteraction(holder.mItem);
                 }
             });
         }
@@ -92,7 +89,7 @@ public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalend
         public final View mView;
         public final TextView mDayView;
         public final TextView mContentView;
-        public RehabCenterInfoItem mItem;
+        public CenterContents mItem;
 
         public ViewHolder(View view) {
             super(view);
