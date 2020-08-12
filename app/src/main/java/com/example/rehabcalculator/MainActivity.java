@@ -1,10 +1,10 @@
 package com.example.rehabcalculator;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.rehabcalculator.ui.main.CalendarFragment;
-import com.example.rehabcalculator.ui.main.content.CenterContents;
+import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.content.TherapyContents;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     }
 
     @Override
-    public void onListFragmentInteraction(CenterContents item) {
+    public void onListFragmentInteraction(CalendarItem item) {
 
     }
 

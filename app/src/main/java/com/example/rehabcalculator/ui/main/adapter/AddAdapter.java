@@ -1,4 +1,4 @@
-package com.example.rehabcalculator;
+package com.example.rehabcalculator.ui.main.adapter;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -9,10 +9,10 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
+import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.MainViewModel;
-import com.example.rehabcalculator.ui.main.content.CenterContents;
+import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.example.rehabcalculator.ui.main.utils.Const;
 import com.example.rehabcalculator.ui.main.utils.Utils;
 
@@ -26,7 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
 
     private Context context = null;
-    private final ArrayList<CenterContents> mValues;
+    private final ArrayList<TherapyContents> mValues;
+    private ArrayList<TherapyContents> mAddList;
     private final MainViewModel model;
     int[] on = new int[]{Const.OFF, Const.ON, Const.OFF, Const.OFF, Const.OFF, Const.OFF, Const.OFF};
     private Calendar start_cal, end_cal;
@@ -37,7 +38,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
     public AddAdapter(Context context, MainViewModel model) {
         this.context = context;
         this.model = model;
-        this.mValues = model.getDayEmptyList();
+        this.mValues = model.getDayInitList();
         start_cal = Calendar.getInstance();
         end_cal = Calendar.getInstance();
     }
@@ -65,6 +66,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
+        holder.mItem = mValues.get(position);
         if(on[position] < 1) {
             holder.mView.setVisibility(View.GONE);
             holder.mView.setLayoutParams(new AbsListView.LayoutParams(-1,1));
@@ -80,7 +82,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
                 Date[] dates = new Date[]{Utils.getDate(hourOfDay, minute), Utils.getDate(hourOfDay+1, minute)};
                 holder.mStartDate.setText(Utils.timeTextOnBtn(dates[0]));
                 holder.mEndDate.setText(Utils.timeTextOnBtn(dates[1]));
-                //mValues.get(position).setDate();
+                holder.mItem.setDate(dates);
             }, start_cal.get(Calendar.HOUR_OF_DAY), start_cal.get(Calendar.MINUTE), false);
             dialog.show();
         });
@@ -93,12 +95,13 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
                 Date[] dates = new Date[]{Utils.getDate(start_cal.get(Calendar.HOUR_OF_DAY), start_cal.get(Calendar.MINUTE)), Utils.getDate(hourOfDay, minute)};
                 holder.mStartDate.setText(Utils.timeTextOnBtn(dates[0]));
                 holder.mEndDate.setText(Utils.timeTextOnBtn(dates[1]));
-                //mValues.get(position).setDate();
+                holder.mItem.setDate(dates);
             }, end_cal.get(Calendar.HOUR_OF_DAY), end_cal.get(Calendar.MINUTE), false);
             dialog.show();
         });
 
         holder.mNumber.setText("1");
+        holder.mItem.setNum(Integer.parseInt(holder.mNumber.getText().toString()));
 
     }
 
@@ -107,13 +110,25 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
         return mValues.size();
     }
 
+    public ArrayList<TherapyContents> getAddList() {
+        if(mAddList == null) {
+            mAddList = new ArrayList<>();
+        }
+        for(TherapyContents content : mValues) {
+            if(on[content.getDay()] == Const.ON) {
+                mAddList.add(content);
+            }
+        }
+        return mAddList;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mDayView;
         public final Button mStartDate;
         public final Button mEndDate;
         public final EditText mNumber;
-        public CenterContents mItem;
+        public TherapyContents mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -128,6 +143,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
         public String toString() {
             return mDayView.toString() + " ";
         }
+
     }
 
 }

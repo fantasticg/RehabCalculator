@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.rehabcalculator.R;
-import com.example.rehabcalculator.ui.main.content.CenterContents;
+import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
+import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -91,13 +93,20 @@ public class CalendarFragment extends Fragment {
 
         // Set the adapter
         if (view.findViewById(R.id.list) instanceof RecyclerView) {
-            RecyclerView recyclerView = view.findViewById(R.id.list) ;
+            RecyclerView recyclerView = view.findViewById(R.id.list);
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), mColumnCount));
-            recyclerView.setAdapter(new MyCalendarRecyclerViewAdapter(requireActivity(), mViewModel.getContentsItem(), mListener, 8));
+            recyclerView.setAdapter(new CalendarAdapter(requireActivity(), mViewModel, mListener, 8));
         }
 
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        RecyclerView recyclerView = getView().findViewById(R.id.list);
+        ((CalendarAdapter)recyclerView.getAdapter()).clear();
     }
 
     @Override
@@ -129,6 +138,6 @@ public class CalendarFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(CenterContents item);
+        void onListFragmentInteraction(CalendarItem item);
     }
 }

@@ -18,7 +18,7 @@
             android:textSize="12sp"
             android:text="치료사이름" />
         <EditText
-            android:id="@+id/textinput_centername"
+            android:id="@+id/textinput_therapistname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_margin"

@@ -1,4 +1,4 @@
-package com.example.rehabcalculator.ui.main;
+package com.example.rehabcalculator.ui.main.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,7 +8,9 @@ import android.widget.TextView;
 
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.CalendarFragment.OnListFragmentInteractionListener;
-import com.example.rehabcalculator.ui.main.content.CenterContents;
+import com.example.rehabcalculator.ui.main.MainViewModel;
+import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.content.TherapyContents;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,18 +20,19 @@ import java.util.Locale;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalendarRecyclerViewAdapter.ViewHolder> {
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHolder> {
 
-    private final ArrayList<CenterContents> mValues;
+    private final MainViewModel mModel;
+    private final ArrayList<CalendarItem> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context mContext;
     private final int mMonth;
     private final int mdaysHeader = 7;
     private int mStartDayPosition;
 
-    public MyCalendarRecyclerViewAdapter(Context context, ArrayList<CenterContents> items, OnListFragmentInteractionListener listener, int month) {
+    public CalendarAdapter(Context context, MainViewModel model, OnListFragmentInteractionListener listener, int month) {
         mContext = context;
-        mValues = items;
+        mModel = model;
         mListener = listener;
         mMonth = month;
 
@@ -45,6 +48,9 @@ public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalend
 
         cal.set(Integer.parseInt(curYearFormat.format(date)), mMonth - 1, 1);
         mStartDayPosition = cal.get(Calendar.DAY_OF_WEEK) -1;
+
+        int dayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        mValues = model.getCalendarInitList(dayOfMonth);
 
     }
 
@@ -68,7 +74,7 @@ public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalend
             int nPosition = position - mdaysHeader - mStartDayPosition;
             holder.mItem = mValues.get(nPosition);
             holder.mDayView.setText(String.valueOf(mValues.get(nPosition).getDay()));
-            holder.mContentView.setText(mValues.get(nPosition).getCenterName());
+            holder.mContentView.setText("");
 
             holder.mView.setOnClickListener(v -> {
                 if (null != mListener) {
@@ -85,11 +91,17 @@ public class MyCalendarRecyclerViewAdapter extends RecyclerView.Adapter<MyCalend
         return mdaysHeader + mStartDayPosition + mValues.size();
     }
 
+    public void clear() {
+        int size = mValues.size();
+        mValues.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mDayView;
         public final TextView mContentView;
-        public CenterContents mItem;
+        public CalendarItem mItem;
 
         public ViewHolder(View view) {
             super(view);

@@ -30,14 +30,16 @@
         app:layout_constraintStart_toEndOf="@id/addtime_startdate"
         app:layout_constraintEnd_toStartOf="@id/addtime_numbers"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
     <EditText
         android:id="@+id/addtime_numbers"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:text="1"
+        android:gravity="center"
         android:inputType="numberDecimal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/addtime_enddate"
+        android:text="1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toEndOf="@id/addtime_enddate"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
