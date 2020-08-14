@@ -13,6 +13,9 @@ import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.time.DayOfWeek;
+import java.util.Date;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -45,7 +48,7 @@ public class CalendarFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static CalendarFragment newInstance(int columnCount) {
+    public static CalendarFragment newInstance(int columnCount, MainViewModel model) {
         CalendarFragment fragment = new CalendarFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
@@ -58,8 +61,6 @@ public class CalendarFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
-
     }
 
     @Override
@@ -70,7 +71,7 @@ public class CalendarFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-        mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        mViewModel= new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
     }
 
@@ -95,11 +96,22 @@ public class CalendarFragment extends Fragment {
         if (view.findViewById(R.id.list) instanceof RecyclerView) {
             RecyclerView recyclerView = view.findViewById(R.id.list);
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), mColumnCount));
-            recyclerView.setAdapter(new CalendarAdapter(requireActivity(), mViewModel, mListener, 8));
+            long now = System.currentTimeMillis();
+            Date date = new Date(now);
+            mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener, date);
+            recyclerView.setAdapter(mAdapter);
         }
 
 
         return view;
+    }
+
+    private CalendarAdapter mAdapter;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter.addList();
     }
 
     @Override
