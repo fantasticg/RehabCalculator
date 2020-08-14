@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.rehabcalculator.R;
@@ -12,11 +13,9 @@ import com.example.rehabcalculator.ui.main.MainViewModel;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
 import com.example.rehabcalculator.ui.main.content.TherapyContents;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,32 +25,59 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     private final ArrayList<CalendarItem> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context mContext;
-    private final int mMonth;
+    private final Date mDate;
     private final int mdaysHeader = 7;
+    private int dayOfWeek_1st;
     private int mStartDayPosition;
 
-    public CalendarAdapter(Context context, MainViewModel model, OnListFragmentInteractionListener listener, int month) {
+
+    public CalendarAdapter(Context context, MainViewModel model, OnListFragmentInteractionListener listener, Date date) {
         mContext = context;
         mModel = model;
         mListener = listener;
-        mMonth = month;
-
-        // 오늘에 날짜를 세팅 해준다.
-        long now = System.currentTimeMillis();
-        final Date date = new Date(now);
+        mDate = date;
         Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.DATE, 1);
 
-        //연,월,일을 따로 저장
-        final SimpleDateFormat curYearFormat = new SimpleDateFormat("yyyy", Locale.KOREA);
-        final SimpleDateFormat curMonthFormat = new SimpleDateFormat("MM", Locale.KOREA);
-        final SimpleDateFormat curDayFormat = new SimpleDateFormat("dd", Locale.KOREA);
+        dayOfWeek_1st = cal.get(Calendar.DAY_OF_WEEK);
+        mStartDayPosition = dayOfWeek_1st-1;
 
-        cal.set(Integer.parseInt(curYearFormat.format(date)), mMonth - 1, 1);
-        mStartDayPosition = cal.get(Calendar.DAY_OF_WEEK) -1;
+        int enddayofmonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        mValues = model.getCalendarInitList(enddayofmonth);
 
-        int dayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        mValues = model.getCalendarInitList(dayOfMonth);
+    }
 
+    public void addList() {
+        if(mModel.getAddList() != null) {
+            for (TherapyContents content : mModel.getAddList()) {
+                ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
+                for (Integer i : somdays) {
+                    mValues.get(i-1).setListItem(content);
+                }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    private int getDayOfWeek(int dayOfMonth) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mDate);
+        cal.set(Calendar.DATE, dayOfMonth);
+        return cal.get(Calendar.DAY_OF_WEEK);
+    }
+
+    private ArrayList<Integer> getTheDatesOfSomeDayOfWeek(int dayOfweek) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mDate);
+        for(int i = 1; i <= cal.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
+            if(getDayOfWeek(i) == dayOfweek) {
+                ret.add(i);
+            }
+        }
+        return ret;
     }
 
     @Override
@@ -65,16 +91,21 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         if(position < mdaysHeader) { //월,화,수...
-            holder.mDayView.setText(mContext.getResources().getStringArray(R.array.dayofweek)[position]);
-            holder.mContentView.setVisibility(View.GONE);
+            holder.mDayView.setText(mContext.getResources().getStringArray(R.array.dayofweek)[position+1]);
+            holder.mContainer.setVisibility(View.GONE);
         } else if(position < mdaysHeader + mStartDayPosition) { //1일 전에 비어있는 칸
-            holder.mDayView.setText("");
-            holder.mContentView.setText("");
+            holder.mDayView.setVisibility(View.INVISIBLE);
+            holder.mContainer.setVisibility(View.INVISIBLE);
         } else {
             int nPosition = position - mdaysHeader - mStartDayPosition;
             holder.mItem = mValues.get(nPosition);
             holder.mDayView.setText(String.valueOf(mValues.get(nPosition).getDay()));
-            holder.mContentView.setText("");
+            if(mValues.get(nPosition).getList() != null) {
+                for(int i =0; i < mValues.get(nPosition).getList().size() ; i++) {
+                    holder.mContent1View.setText(mValues.get(nPosition).getList().get(i).getTherapistName());
+                }
+            }
+
 
             holder.mView.setOnClickListener(v -> {
                 if (null != mListener) {
@@ -97,22 +128,29 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         notifyItemRangeRemoved(0, size);
     }
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mDayView;
-        public final TextView mContentView;
+        public final LinearLayout mContainer;
+        public final TextView mContent1View;
+        public final TextView mContent2View;
+        public final TextView mContent3View;
         public CalendarItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mDayView = view.findViewById(R.id.day);
-            mContentView = view.findViewById(R.id.content);
+            mContainer = view.findViewById(R.id.contents_container);
+            mContent1View = view.findViewById(R.id.content1);
+            mContent2View = view.findViewById(R.id.content2);
+            mContent3View = view.findViewById(R.id.content3);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString();
         }
     }
 }

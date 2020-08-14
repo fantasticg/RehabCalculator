@@ -29,7 +29,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
     private final ArrayList<TherapyContents> mValues;
     private ArrayList<TherapyContents> mAddList;
     private final MainViewModel model;
-    int[] on = new int[]{Const.OFF, Const.ON, Const.OFF, Const.OFF, Const.OFF, Const.OFF, Const.OFF};
+    int[] on = new int[]{-1, Const.OFF, Const.ON, Const.OFF, Const.OFF, Const.OFF, Const.OFF, Const.OFF};
     private Calendar start_cal, end_cal;
 
     TimePickerDialog dialog;
@@ -43,11 +43,11 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
         end_cal = Calendar.getInstance();
     }
 
-    public void setOnOff(int position, boolean checked){
+    public void setOnOff(int dayOfWeek, boolean checked){
         if(checked) {
-            on[position] = 1;
+            on[dayOfWeek] = 1;
         } else {
-            on[position] = 0;
+            on[dayOfWeek] = 0;
         }
         notifyDataSetChanged();
     }
@@ -67,14 +67,14 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         holder.mItem = mValues.get(position);
-        if(on[position] < 1) {
+        if(on[holder.mItem.getDayOfWeek()] < 1) {
             holder.mView.setVisibility(View.GONE);
             holder.mView.setLayoutParams(new AbsListView.LayoutParams(-1,1));
         } else {
             holder.mView.setVisibility(View.VISIBLE);
             holder.mView.setLayoutParams(new AbsListView.LayoutParams(-1,-2));
         }
-        holder.mDayView.setText(context.getResources().getStringArray(R.array.dayofweek)[position]);
+        holder.mDayView.setText(context.getResources().getStringArray(R.array.dayofweek)[holder.mItem.getDayOfWeek()]);
         holder.mStartDate.setText("AM 3:00");
         start_cal.setTime(dates[0]);
         holder.mStartDate.setOnClickListener(v -> {
@@ -115,10 +115,12 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
             mAddList = new ArrayList<>();
         }
         for(TherapyContents content : mValues) {
-            if(on[content.getDay()] == Const.ON) {
+            if(on[content.getDayOfWeek()] == Const.ON) {
                 mAddList.add(content);
+
             }
         }
+
         return mAddList;
     }
 

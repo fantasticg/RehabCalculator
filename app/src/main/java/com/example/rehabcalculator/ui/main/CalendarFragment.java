@@ -9,11 +9,9 @@ import android.view.ViewGroup;
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
-import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.time.DayOfWeek;
 import java.util.Date;
 
 import androidx.annotation.Nullable;

@@ -50,7 +50,7 @@ public class AddFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.add_fragment, container, false);
 
-        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         mRecyclerView = view.findViewById(R.id.day_list);
 
@@ -86,6 +86,9 @@ public class AddFragment extends Fragment {
                 content.setTherapistName(therapistName.getText().toString());
                 content.setPrice(Integer.parseInt(price.getText().toString()));
             }
+
+            mViewModel.setAddList(list);
+
 
             NavHostFragment.findNavController(AddFragment.this)
                     .navigate(R.id.action_Add_to_Calendar);

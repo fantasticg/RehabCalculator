@@ -18,4 +18,17 @@ public class CalendarItem {
     public void setDay(int d) {
         this.day = d;
     }
+
+    public void setListItem(TherapyContents contents) {
+        if(this.list == null) {
+            this.list = new ArrayList<>();
+            this.list.add(contents);
+        } else {
+            this.list.add(contents);
+        }
+    }
+
+    public ArrayList<TherapyContents> getList() {
+        return this.list;
+    }
 }
