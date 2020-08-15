@@ -16,27 +16,28 @@ import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHolder> {
 
     private final MainViewModel mModel;
-    private final ArrayList<CalendarItem> mValues;
+    private final HashMap<String, CalendarItem> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Context mContext;
     private final Date mDate;
     private final int mdaysHeader = 7;
     private int dayOfWeek_1st;
     private int mStartDayPosition;
-
+    private Calendar cal;
 
     public CalendarAdapter(Context context, MainViewModel model, OnListFragmentInteractionListener listener, Date date) {
         mContext = context;
         mModel = model;
         mListener = listener;
         mDate = date;
-        Calendar cal = Calendar.getInstance();
+        cal = Calendar.getInstance();
         cal.setTime(date);
         cal.set(Calendar.DATE, 1);
 
@@ -44,16 +45,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         mStartDayPosition = dayOfWeek_1st-1;
 
         int enddayofmonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        mValues = model.getCalendarInitList(enddayofmonth);
+        mValues = model.getCalendarInitList(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), enddayofmonth);
 
     }
 
-    public void addList() {
-        if(mModel.getAddList() != null) {
-            for (TherapyContents content : mModel.getAddList()) {
+    public void addCalList() {
+        if(mModel.getSavedList() != null) {
+            for (TherapyContents content : mModel.getSavedList()) {
                 ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
                 for (Integer i : somdays) {
-                    mValues.get(i-1).setListItem(content);
+                    mValues.get(mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(content);
                 }
             }
         }
@@ -70,10 +71,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
     private ArrayList<Integer> getTheDatesOfSomeDayOfWeek(int dayOfweek) {
         ArrayList<Integer> ret = new ArrayList<>();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(mDate);
         for(int i = 1; i <= cal.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-            if(getDayOfWeek(i) == dayOfweek) {
+            cal.set(Calendar.DATE, i);
+            if(cal.get(Calendar.DAY_OF_WEEK) == dayOfweek) {
                 ret.add(i);
             }
         }
@@ -98,11 +98,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             holder.mContainer.setVisibility(View.INVISIBLE);
         } else {
             int nPosition = position - mdaysHeader - mStartDayPosition;
-            holder.mItem = mValues.get(nPosition);
-            holder.mDayView.setText(String.valueOf(mValues.get(nPosition).getDay()));
-            if(mValues.get(nPosition).getList() != null) {
-                for(int i =0; i < mValues.get(nPosition).getList().size() ; i++) {
-                    holder.mContent1View.setText(mValues.get(nPosition).getList().get(i).getTherapistName());
+            String positionKey = mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), nPosition+1);
+            holder.mItem = mValues.get(positionKey);
+            holder.mDayView.setText(String.valueOf(mValues.get(positionKey).getDay()));
+            if(mValues.get(positionKey).getList() != null) {
+                for(int i =0; i < mValues.get(positionKey).getList().size() ; i++) {
+                    holder.mContent1View.setText(mValues.get(positionKey).getList().get(i).getTherapistName());
                 }
             }
 
@@ -124,7 +125,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
     public void clear() {
         int size = mValues.size();
-        mValues.clear();
+        //mValues.clear();
         notifyItemRangeRemoved(0, size);
     }
 
