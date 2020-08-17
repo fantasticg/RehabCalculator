@@ -86,7 +86,7 @@ public class CalendarFragment extends Fragment {
         } );
 
         FloatingActionButton cal = view.findViewById(R.id.cal);
-        cal.setOnClickListener(clickview -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        cal.setOnClickListener(clickview -> Snackbar.make(view, mViewModel.getCountMap().toString(), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
 
 
@@ -109,7 +109,7 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.addList();
+        mAdapter.addCalList();
     }
 
     @Override

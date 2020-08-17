@@ -1,9 +1,7 @@
 package com.example.rehabcalculator.ui.main.utils;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class Utils {
 
@@ -19,5 +17,14 @@ public class Utils {
         cal.setTime(date);
 
         return (cal.get(Calendar.HOUR_OF_DAY)>11?"PM ": "AM ") + cal.get(Calendar.HOUR) +":" +(cal.get(Calendar.MINUTE)<10?"0"+cal.get(Calendar.MINUTE):cal.get(Calendar.MINUTE));
+    }
+
+    public static String datetimeTextOnBtn(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        return cal.get(Calendar.YEAR) + "년" + (cal.get(Calendar.MONTH)+1)+ "월" + cal.get(Calendar.DAY_OF_MONTH)+ "일"+
+                (cal.get(Calendar.HOUR_OF_DAY)>11?" PM ": " AM ") + cal.get(Calendar.HOUR) +":"
+                +(cal.get(Calendar.MINUTE)<10?"0"+cal.get(Calendar.MINUTE):cal.get(Calendar.MINUTE));
     }
 }

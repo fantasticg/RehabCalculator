@@ -41,6 +41,11 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
         this.mValues = model.getDayInitList();
         start_cal = Calendar.getInstance();
         end_cal = Calendar.getInstance();
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        start_cal.setTime(date);
+        end_cal.setTime(date);
+
     }
 
     public void setOnOff(int dayOfWeek, boolean checked){
@@ -61,7 +66,6 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
         return new ViewHolder(view);
     }
 
-    private Date[] dates = new Date[]{Utils.getDate(15, 0), Utils.getDate(16, 0)};
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -75,27 +79,26 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
             holder.mView.setLayoutParams(new AbsListView.LayoutParams(-1,-2));
         }
         holder.mDayView.setText(context.getResources().getStringArray(R.array.dayofweek)[holder.mItem.getDayOfWeek()]);
-        holder.mStartDate.setText("AM 3:00");
-        start_cal.setTime(dates[0]);
+        holder.mStartDate.setText(Utils.timeTextOnBtn(start_cal.getTime()));
         holder.mStartDate.setOnClickListener(v -> {
             dialog = new TimePickerDialog(context, (view, hourOfDay, minute) -> {
-                Date[] dates = new Date[]{Utils.getDate(hourOfDay, minute), Utils.getDate(hourOfDay+1, minute)};
-                holder.mStartDate.setText(Utils.timeTextOnBtn(dates[0]));
-                holder.mEndDate.setText(Utils.timeTextOnBtn(dates[1]));
-                holder.mItem.setDate(dates);
+                start_cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                start_cal.set(Calendar.MINUTE, minute);
+                end_cal.set(Calendar.HOUR_OF_DAY, hourOfDay+1);
+                end_cal.set(Calendar.MINUTE, minute);
+                holder.mStartDate.setText(Utils.timeTextOnBtn(start_cal.getTime()));
+                holder.mEndDate.setText(Utils.timeTextOnBtn(end_cal.getTime()));
             }, start_cal.get(Calendar.HOUR_OF_DAY), start_cal.get(Calendar.MINUTE), false);
             dialog.show();
         });
 
 
-        holder.mEndDate.setText("AM 4:00");
-        end_cal.setTime(dates[1]);
+        holder.mEndDate.setText(Utils.timeTextOnBtn(end_cal.getTime()));
         holder.mEndDate.setOnClickListener(v -> {
             dialog = new TimePickerDialog(context, (view, hourOfDay, minute) -> {
-                Date[] dates = new Date[]{Utils.getDate(start_cal.get(Calendar.HOUR_OF_DAY), start_cal.get(Calendar.MINUTE)), Utils.getDate(hourOfDay, minute)};
-                holder.mStartDate.setText(Utils.timeTextOnBtn(dates[0]));
-                holder.mEndDate.setText(Utils.timeTextOnBtn(dates[1]));
-                holder.mItem.setDate(dates);
+                end_cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                end_cal.set(Calendar.MINUTE, minute);
+                holder.mEndDate.setText(Utils.timeTextOnBtn(end_cal.getTime()));
             }, end_cal.get(Calendar.HOUR_OF_DAY), end_cal.get(Calendar.MINUTE), false);
             dialog.show();
         });

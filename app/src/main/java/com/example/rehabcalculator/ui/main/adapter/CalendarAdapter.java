@@ -55,6 +55,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                 ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
                 for (Integer i : somdays) {
                     mValues.get(mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(content);
+                    mModel.totalCountCalculation(content);
                 }
             }
         }

@@ -13,14 +13,14 @@ public class TherapyContents {
     private int dayOfWeek; //요일
     private int num; // 횟수 - 2회연속 일 경우를 위해
     private Date[] dates = new  Date[2]; //시작시간
-    private TherapistNamePriceItem centerInfo;
+    private TherapistNamePriceItem therapistInfo;
 
     public TherapyContents(int dayOfWeek, int num, Date start, Date end, TherapistNamePriceItem info) {
         this.dayOfWeek = dayOfWeek;
         this.num = num;
         this.dates[START_TIME] = start;
         this.dates[END_TIME] = end;
-        this.centerInfo = info;
+        this.therapistInfo = info;
     }
 
     private SimpleDateFormat getHMFormat(Date date) {
@@ -34,11 +34,11 @@ public class TherapyContents {
     }
 
     public String getTherapistName() {
-        return centerInfo.getTherapist();
+        return therapistInfo.getTherapist();
     }
 
     public int getPrice() {
-        return centerInfo.getPrice();
+        return therapistInfo.getPrice();
     }
 
     public int getDayOfWeek() {
@@ -54,19 +54,31 @@ public class TherapyContents {
     }
 
     public void setTherapistName(String therapistName) {
-        if(centerInfo == null) {
-            centerInfo = new TherapistNamePriceItem(therapistName, 0);
+        if(therapistInfo == null) {
+            therapistInfo = new TherapistNamePriceItem(therapistName, 0, 0);
         } else {
-            centerInfo.setTherapist(therapistName);
+            therapistInfo.setTherapist(therapistName);
         }
     }
 
     public void setPrice(int p) {
-        if(centerInfo == null) {
-            centerInfo = new TherapistNamePriceItem("", p);
+        if(therapistInfo == null) {
+            therapistInfo = new TherapistNamePriceItem("", p, 0);
         } else {
-            centerInfo.setPrice(p);
+            therapistInfo.setPrice(p);
         }
+    }
+
+    public void setMonthlyFee(int f) {
+        if(therapistInfo == null) {
+            therapistInfo = new TherapistNamePriceItem("", 0, f);
+        } else {
+            therapistInfo.setMonthlyfee(f);
+        }
+    }
+
+    public int getMonthlyFee() {
+        return therapistInfo.getMonthlyfee();
     }
 
     public void setDate(Date[] date) {

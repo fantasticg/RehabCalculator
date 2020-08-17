@@ -8,36 +8,19 @@ import com.example.rehabcalculator.ui.main.utils.Utils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import androidx.lifecycle.ViewModel;
 
 public class MainViewModel extends ViewModel {
 
-    private HashMap<Integer, ArrayList<TherapyContents>> calendarMap = new HashMap<>();
-
     private ArrayList<TherapyContents> add_init_list = new ArrayList<>();
-    private ArrayList<CalendarItem> calendar_init_list = new ArrayList<>();
 
-    private ArrayList<TherapyContents> add_list;
+    private HashMap<String, CalendarItem> calendar_map = new HashMap<>();
 
-    //public HashMap<String, CenterContents> centerMap = new HashMap<>();
+    private HashMap<String, Integer> countByTherapist = new HashMap<>();
 
-
-
-    //RehabDayTimeInfoItem(int day, int num, Date start, Date end, RehabCenterInfoItem info)
-    public void addCenterMap(int dayOfMonth, TherapyContents aCenterList) {
-        if (calendarMap.get(dayOfMonth) == null) {
-            ArrayList<TherapyContents> list = new ArrayList<>();
-            list.add(aCenterList);
-            calendarMap.put(dayOfMonth, list);
-        } else {
-            calendarMap.get(dayOfMonth).add(aCenterList);
-        }
-
-    }
-
-
-
+    private ArrayList<TherapyContents> add_list = new ArrayList<>();
 
     public ArrayList<TherapyContents> getDayInitList() {
 
@@ -57,30 +40,81 @@ public class MainViewModel extends ViewModel {
         add_init_list.add(new TherapyContents(dayOfWeek, num, start, end, null));
     }
 
-    public ArrayList<CalendarItem> getCalendarInitList(int dayOfMonth) {
+    public HashMap<String, CalendarItem> getCalendarInitList(int year, int month) {
+        return calendar_map;
+    }
 
-        for(int i = 0; i < dayOfMonth; i++) {
-            EmptyListCalendarItem(i+1, null);
+    public HashMap<String, CalendarItem> getCalendarInitList(int year, int month, int enddayofmonth) {
+
+        if(calendar_map.size() == enddayofmonth) {
+            return calendar_map;
         }
-        return calendar_init_list;
+
+        for(int i = 0; i < enddayofmonth; i++) {
+            addCalendarItemWithList(year, month, i+1, null);
+        }
+        return calendar_map;
     }
 
 
-    private void EmptyListCalendarItem(int dayofMonth, ArrayList<TherapyContents> list) {
-        calendar_init_list.add(new CalendarItem(dayofMonth, list));
+
+    public void addCalendarItemWithList(int year, int month, int dayofMonth, ArrayList<TherapyContents> list) {
+        if(calendar_map.size() <dayofMonth || calendar_map.get(dayofMonth) == null) {
+            calendar_map.put(getMapKey(year, month, dayofMonth), new CalendarItem(year, month, dayofMonth, list));
+        } else {
+            calendar_map.get(getMapKey(year, month, dayofMonth)).addList(list);
+        }
     }
 
+    public void addCalendarItemWithContent(int year, int month, int dayofMonth, TherapyContents contents) {
+        if(calendar_map.get(dayofMonth) == null) {
+            ArrayList<TherapyContents> list = new ArrayList<>();
+            list.add(contents);
+            calendar_map.put(getMapKey(year, month, dayofMonth), new CalendarItem(year, month, dayofMonth, list));
+        } else {
+            calendar_map.get(getMapKey(year, month, dayofMonth)).addListItem(contents);
+        }
+        totalCountCalculation(contents);
+    }
+
+    /*
+    private void totalCountCalculation(ArrayList<TherapyContents> list) {
+        if(list == null) {
+            return;
+        }
+
+        for(TherapyContents contents : list) {
+            if(countByTherapist.get(contents.getTherapistName()) == null) {
+                countByTherapist.put(contents.getTherapistName(), 1);
+            } else {
+                countByTherapist.put(contents.getTherapistName(), countByTherapist.get(contents.getTherapistName())+1);
+            }
+        }
+    }
+
+     */
+
+    public void totalCountCalculation(TherapyContents contents) {
+        if(countByTherapist.get(contents.getTherapistName()) == null) {
+            countByTherapist.put(contents.getTherapistName(), contents.getPrice()+contents.getMonthlyFee());
+        } else {
+            countByTherapist.put(contents.getTherapistName(), countByTherapist.get(contents.getTherapistName())+contents.getPrice());
+        }
+    }
+
+    public HashMap<String, Integer> getCountMap() {
+        return countByTherapist;
+    }
+
+    public String getMapKey(int year, int month, int dayofMonth){
+        return year+""+month+1+""+dayofMonth;
+    }
 
     public void setAddList(ArrayList<TherapyContents> list) {
-        if(this.add_list == null) {
-            this.add_list = list;
-        } else {
-            add_list.addAll(list);
-        }
-
+        this.add_list = list;
     }
 
-    public ArrayList<TherapyContents> getAddList() {
+    public ArrayList<TherapyContents> getSavedList() {
         return this.add_list;
     }
 
