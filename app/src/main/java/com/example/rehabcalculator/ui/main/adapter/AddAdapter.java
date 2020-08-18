@@ -114,13 +114,13 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
     }
 
     public ArrayList<TherapyContents> getAddList() {
-        if(mAddList == null) {
-            mAddList = new ArrayList<>();
-        }
+        mAddList = new ArrayList<>();
+        TherapyContents newContents;
         for(TherapyContents content : mValues) {
             if(on[content.getDayOfWeek()] == Const.ON) {
+                //hkyeom
+                // newContents = new TherapyContent(content);
                 mAddList.add(content);
-
             }
         }
 

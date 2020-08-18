@@ -51,14 +51,19 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
     public void addCalList() {
         if(mModel.getSavedList() != null) {
+            TherapyContents clone;
             for (TherapyContents content : mModel.getSavedList()) {
+                clone = content.clone();
+                clone.setTherapistNamePriceItem(content.getTherapistInfo().clone());
                 ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
                 for (Integer i : somdays) {
-                    mValues.get(mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(content);
+                    //hkyeom
+                    mValues.get(mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(clone);
                     mModel.totalCountCalculation(content);
                 }
             }
         }
+        mModel.setAddList(null);
 
         notifyDataSetChanged();
     }
@@ -103,8 +108,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             holder.mItem = mValues.get(positionKey);
             holder.mDayView.setText(String.valueOf(mValues.get(positionKey).getDay()));
             if(mValues.get(positionKey).getList() != null) {
-                for(int i =0; i < mValues.get(positionKey).getList().size() ; i++) {
-                    holder.mContent1View.setText(mValues.get(positionKey).getList().get(i).getTherapistName());
+                for(int i = 0 ; i < mValues.get(positionKey).getList().size() && i <3; i++) {
+                    holder.mContents[i].setText(mValues.get(positionKey).getList().get(i).getTherapistName());
+                }
+                if(mValues.get(positionKey).getList().size() > 3) {
+                    holder.mMoreView.setText(mValues.get(positionKey).getList().size()-3+"+");
                 }
             }
 
@@ -138,7 +146,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         public final TextView mContent1View;
         public final TextView mContent2View;
         public final TextView mContent3View;
+        public final TextView mMoreView;
         public CalendarItem mItem;
+        public TextView mContents[];
 
         public ViewHolder(View view) {
             super(view);
@@ -148,6 +158,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             mContent1View = view.findViewById(R.id.content1);
             mContent2View = view.findViewById(R.id.content2);
             mContent3View = view.findViewById(R.id.content3);
+            mMoreView = view.findViewById(R.id.more);
+            mContents = new TextView[]{mContent1View, mContent2View, mContent3View};
         }
 
         @Override

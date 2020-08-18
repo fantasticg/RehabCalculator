@@ -2,7 +2,7 @@ package com.example.rehabcalculator.ui.main.content;
 
 import androidx.annotation.NonNull;
 
-public class TherapistNamePriceItem {
+public class TherapistNamePriceItem implements Cloneable{
     private String therapist; //치료사 이름
     private int price = 0; //금액
     private int monthlyfee = 0; // 월회비 = 아델리 의상 비용 같은 개념
@@ -42,5 +42,17 @@ public class TherapistNamePriceItem {
     public int getMonthlyfee() {
         return this.monthlyfee;
     }
+
+    @Override
+    public TherapistNamePriceItem clone() {
+        TherapistNamePriceItem clone = null;
+        try {
+            clone = (TherapistNamePriceItem) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
+    }
+
 }
 

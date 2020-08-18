@@ -8,7 +8,6 @@ import com.example.rehabcalculator.ui.main.utils.Utils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 import androidx.lifecycle.ViewModel;
 
@@ -20,7 +19,7 @@ public class MainViewModel extends ViewModel {
 
     private HashMap<String, Integer> countByTherapist = new HashMap<>();
 
-    private ArrayList<TherapyContents> add_list = new ArrayList<>();
+    private ArrayList<TherapyContents> new_add_list = new ArrayList<>();
 
     public ArrayList<TherapyContents> getDayInitList() {
 
@@ -38,10 +37,6 @@ public class MainViewModel extends ViewModel {
 
     private void EmptyListaddTime(String center_name, int dayOfWeek, int price, int num, Date start, Date end) {
         add_init_list.add(new TherapyContents(dayOfWeek, num, start, end, null));
-    }
-
-    public HashMap<String, CalendarItem> getCalendarInitList(int year, int month) {
-        return calendar_map;
     }
 
     public HashMap<String, CalendarItem> getCalendarInitList(int year, int month, int enddayofmonth) {
@@ -107,15 +102,15 @@ public class MainViewModel extends ViewModel {
     }
 
     public String getMapKey(int year, int month, int dayofMonth){
-        return year+""+month+1+""+dayofMonth;
+        return year+""+(month+1)+""+dayofMonth;
     }
 
     public void setAddList(ArrayList<TherapyContents> list) {
-        this.add_list = list;
+        this.new_add_list = list;
     }
 
     public ArrayList<TherapyContents> getSavedList() {
-        return this.add_list;
+        return this.new_add_list;
     }
 
 

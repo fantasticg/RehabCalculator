@@ -24,7 +24,7 @@ public class CalendarItem {
             this.list = new ArrayList<>();
             this.list = list;
         } else {
-            this.list.addAll(list);
+            this.list = list;
         }
     }
 

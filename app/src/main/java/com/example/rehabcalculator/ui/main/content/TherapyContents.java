@@ -5,7 +5,7 @@ import java.util.Date;
 
 import androidx.annotation.NonNull;
 
-public class TherapyContents {
+public class TherapyContents implements Cloneable{
 
     public static final int START_TIME = 0;
     public static final int END_TIME = 1;
@@ -53,29 +53,7 @@ public class TherapyContents {
         return dates;
     }
 
-    public void setTherapistName(String therapistName) {
-        if(therapistInfo == null) {
-            therapistInfo = new TherapistNamePriceItem(therapistName, 0, 0);
-        } else {
-            therapistInfo.setTherapist(therapistName);
-        }
-    }
 
-    public void setPrice(int p) {
-        if(therapistInfo == null) {
-            therapistInfo = new TherapistNamePriceItem("", p, 0);
-        } else {
-            therapistInfo.setPrice(p);
-        }
-    }
-
-    public void setMonthlyFee(int f) {
-        if(therapistInfo == null) {
-            therapistInfo = new TherapistNamePriceItem("", 0, f);
-        } else {
-            therapistInfo.setMonthlyfee(f);
-        }
-    }
 
     public int getMonthlyFee() {
         return therapistInfo.getMonthlyfee();
@@ -89,5 +67,23 @@ public class TherapyContents {
         this.num = num;
     }
 
+    public TherapistNamePriceItem getTherapistInfo() {
+        return therapistInfo;
+    }
+
+    public void setTherapistNamePriceItem( TherapistNamePriceItem item) {
+        this.therapistInfo = item;
+    }
+
+    @Override
+    public TherapyContents clone() {
+        TherapyContents clone = null;
+        try {
+            clone = (TherapyContents) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
+    }
 
 }

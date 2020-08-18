@@ -106,10 +106,14 @@ public class AddFragment extends Fragment {
             }
 
             if(fixCheckBox.isChecked()) { //고정
+                TherapistNamePriceItem item = new TherapistNamePriceItem(therapistName.getText().toString(),
+                        Integer.parseInt(price.getText().toString()),
+                        (monthlyfee.getText().toString().equals("") ? 0 : Integer.parseInt(monthlyfee.getText().toString())));
                 for (TherapyContents content : list) {
-                    content.setTherapistName(therapistName.getText().toString());
-                    content.setPrice(Integer.parseInt(price.getText().toString()));
-                    content.setMonthlyFee((monthlyfee.getText().toString().equals("") ? 0 : Integer.parseInt(monthlyfee.getText().toString())));
+                    content.setTherapistNamePriceItem(item);
+                    //content.setTherapistName(therapistName.getText().toString());
+                    //content.setPrice(Integer.parseInt(price.getText().toString()));
+                    //content.setMonthlyFee();
                 }
 
                 mViewModel.setAddList(list);
