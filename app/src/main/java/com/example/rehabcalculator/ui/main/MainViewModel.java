@@ -15,9 +15,9 @@ public class MainViewModel extends ViewModel {
 
     private ArrayList<TherapyContents> add_init_list = new ArrayList<>();
 
-    private HashMap<String, CalendarItem> calendar_map = new HashMap<>();
-
     private HashMap<String, Integer> countByTherapist = new HashMap<>();
+
+    private HashMap<String, CalendarItem> calendar_map = new HashMap<>();
 
     private ArrayList<TherapyContents> new_add_list = new ArrayList<>();
 
@@ -49,6 +49,16 @@ public class MainViewModel extends ViewModel {
             addCalendarItemWithList(year, month, i+1, null);
         }
         return calendar_map;
+    }
+
+    public HashMap<String, CalendarItem> getCalendarMap() {
+        return calendar_map;
+    }
+
+    public void setCalendarMap(HashMap<String, CalendarItem> map) {
+        if(map != null) {
+            calendar_map = map;
+        }
     }
 
 

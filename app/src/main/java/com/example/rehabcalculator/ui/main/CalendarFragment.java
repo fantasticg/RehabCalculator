@@ -1,7 +1,9 @@
 package com.example.rehabcalculator.ui.main;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +13,12 @@ import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.HashMap;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -70,7 +76,7 @@ public class CalendarFragment extends Fragment {
         }
 
         mViewModel= new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-
+        mViewModel.setCalendarMap(ReadCalendarData(requireActivity()));
     }
 
     @Override
@@ -109,12 +115,20 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.addCalList();
+        mAdapter.addTherapyList();//치료정보 추가 하고 난 후 캘린더에 데이터 업데이트
+        setCalendarPref(requireActivity(), mViewModel.getCalendarMap());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
         RecyclerView recyclerView = getView().findViewById(R.id.list);
         ((CalendarAdapter)recyclerView.getAdapter()).clear();
     }
@@ -150,4 +164,47 @@ public class CalendarFragment extends Fragment {
         // TODO: Update argument type and name
         void onListFragmentInteraction(CalendarItem item);
     }
+
+/*
+    private void setTherapyPref(Context context, ArrayList<TherapyContents> values) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(values);
+        editor.putString("Therapy", json);
+        editor.commit();
+    }
+
+    private ArrayList<TherapyContents> ReadTherapyData(Context context) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson gson = new Gson();
+        String json = sharedPrefs.getString("Therapy", "EMPTY");
+        Type type = new TypeToken<ArrayList<TherapyContents>>() {
+        }.getType();
+        ArrayList<TherapyContents> arrayList = gson.fromJson(json, type);
+        return arrayList;
+    } */
+
+    private void setCalendarPref(Context context, HashMap<String, CalendarItem> values) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(values);
+        editor.putString("Calendar", json);
+        editor.commit();
+    }
+
+    private HashMap<String, CalendarItem> ReadCalendarData(Context context) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson gson = new Gson();
+        String json = sharedPrefs.getString("Calendar", "EMPTY");
+        Type type = new TypeToken<HashMap<String, CalendarItem>>(){}.getType();
+        if(json.equals("EMPTY")) {
+            return null;
+        }
+        HashMap<String, CalendarItem> map = gson.fromJson(json, type);
+        return map;
+    }
+
+
 }

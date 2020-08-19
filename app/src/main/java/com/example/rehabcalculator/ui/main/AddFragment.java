@@ -2,7 +2,10 @@ package com.example.rehabcalculator.ui.main;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +23,9 @@ import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.example.rehabcalculator.ui.main.utils.Const;
 import com.example.rehabcalculator.ui.main.utils.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -215,5 +221,6 @@ public class AddFragment extends Fragment {
             }
         }
     };
+
 
 }

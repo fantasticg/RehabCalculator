@@ -49,7 +49,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
     }
 
-    public void addCalList() {
+    public void addTherapyList() {
         if(mModel.getSavedList() != null) {
             TherapyContents clone;
             for (TherapyContents content : mModel.getSavedList()) {
@@ -64,6 +64,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             }
         }
         mModel.setAddList(null);
+        mModel.setCalendarMap(mValues);
 
         notifyDataSetChanged();
     }
