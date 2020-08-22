@@ -1,5 +1,6 @@
 package com.example.rehabcalculator.ui.main;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,16 +8,21 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.content.TherapyContents;
+import com.example.rehabcalculator.ui.main.utils.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -41,7 +47,8 @@ public class CalendarFragment extends Fragment {
     private int mColumnCount = 7;
     private OnListFragmentInteractionListener mListener;
     private MainViewModel mViewModel;
-
+    private Calendar show_cal = Calendar.getInstance();
+    private RecyclerView recyclerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -76,7 +83,7 @@ public class CalendarFragment extends Fragment {
         }
 
         mViewModel= new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-        mViewModel.setCalendarMap(ReadCalendarData(requireActivity()));
+
     }
 
     @Override
@@ -84,6 +91,23 @@ public class CalendarFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.calendar_fragment, container, false);
 
+        long now = System.currentTimeMillis();
+        show_cal.setTime(new Date(now));
+        Date date = show_cal.getTime();
+        Button btn = view.findViewById(R.id.changemonth_btn);
+        btn.setText(Utils.calendarMonthBtn(date));
+
+        view.findViewById(R.id.changemonth_btn).setOnClickListener(v -> {
+            DatePickerDialog datePicker = new DatePickerDialog(getContext(), 0, (dateview, year, month, dayOfMonth) -> {
+                show_cal.set(Calendar.YEAR, year);
+                show_cal.set(Calendar.MONTH, month);
+                show_cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener, show_cal.getTime());
+                recyclerView.setAdapter(mAdapter);
+                btn.setText(Utils.calendarMonthBtn(show_cal.getTime()));
+            }, show_cal.get(Calendar.YEAR), show_cal.get(Calendar.MONTH), show_cal.get(Calendar.DAY_OF_MONTH));
+            datePicker.show();
+        });
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(clickview ->{
@@ -98,10 +122,8 @@ public class CalendarFragment extends Fragment {
 
         // Set the adapter
         if (view.findViewById(R.id.list) instanceof RecyclerView) {
-            RecyclerView recyclerView = view.findViewById(R.id.list);
+            recyclerView = view.findViewById(R.id.list);
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), mColumnCount));
-            long now = System.currentTimeMillis();
-            Date date = new Date(now);
             mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener, date);
             recyclerView.setAdapter(mAdapter);
         }
@@ -115,14 +137,13 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.addTherapyList();//치료정보 추가 하고 난 후 캘린더에 데이터 업데이트
-        setCalendarPref(requireActivity(), mViewModel.getCalendarMap());
+        mAdapter.addTherapyInfo();//치료정보 추가 하고 난 후 캘린더에 데이터 업데이트
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
     }
 
     @Override
@@ -131,6 +152,7 @@ public class CalendarFragment extends Fragment {
 
         RecyclerView recyclerView = getView().findViewById(R.id.list);
         ((CalendarAdapter)recyclerView.getAdapter()).clear();
+
     }
 
     @Override
@@ -165,46 +187,7 @@ public class CalendarFragment extends Fragment {
         void onListFragmentInteraction(CalendarItem item);
     }
 
-/*
-    private void setTherapyPref(Context context, ArrayList<TherapyContents> values) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(values);
-        editor.putString("Therapy", json);
-        editor.commit();
-    }
 
-    private ArrayList<TherapyContents> ReadTherapyData(Context context) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Gson gson = new Gson();
-        String json = sharedPrefs.getString("Therapy", "EMPTY");
-        Type type = new TypeToken<ArrayList<TherapyContents>>() {
-        }.getType();
-        ArrayList<TherapyContents> arrayList = gson.fromJson(json, type);
-        return arrayList;
-    } */
-
-    private void setCalendarPref(Context context, HashMap<String, CalendarItem> values) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(values);
-        editor.putString("Calendar", json);
-        editor.commit();
-    }
-
-    private HashMap<String, CalendarItem> ReadCalendarData(Context context) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Gson gson = new Gson();
-        String json = sharedPrefs.getString("Calendar", "EMPTY");
-        Type type = new TypeToken<HashMap<String, CalendarItem>>(){}.getType();
-        if(json.equals("EMPTY")) {
-            return null;
-        }
-        HashMap<String, CalendarItem> map = gson.fromJson(json, type);
-        return map;
-    }
 
 
 }

@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import com.example.rehabcalculator.ui.main.CalendarFragment;
 import com.example.rehabcalculator.ui.main.MainViewModel;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.utils.Utils;
 
 import org.json.JSONArray;
 
@@ -18,18 +19,23 @@ import androidx.lifecycle.ViewModelProvider;
 
 public class MainActivity extends AppCompatActivity implements CalendarFragment.OnListFragmentInteractionListener{
 
-
-    public final String PREFERENCE = "com.example.rehabcalculator";
-    public final String key01 = "key01";
-    public final String key02 = "key02";
+    private MainViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
+        mViewModel= new ViewModelProvider(this).get(MainViewModel.class);
+        mViewModel.setCalendarSaveMap(Utils.ReadCalendarData(this));
+        mViewModel.setAddSaveList(Utils.ReadAddData(this));
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Utils.setCalendarPref(this, mViewModel.getCalendarSaveMap());
+        Utils.setAddPref(this, mViewModel.getSavedlist());
+    }
 
     @Override
     public void onListFragmentInteraction(CalendarItem item) {

@@ -45,29 +45,40 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         mStartDayPosition = dayOfWeek_1st-1;
 
         int enddayofmonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        mValues = model.getCalendarInitList(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), enddayofmonth);
-
+        if(model.getCalendarSaveMap() == null) {
+            mValues = model.getCalendarInitList(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), enddayofmonth);
+        } else {
+            mValues = model.getCalendarSaveMap();
+        }
     }
 
-    public void addTherapyList() {
-        if(mModel.getSavedList() != null) {
+    //치료정보 추가 페이지에서 추가한 정보를 달력에 기록한다.
+    public void addTherapyInfo() {
+        if(mModel.getNewAddList() != null) {
             TherapyContents clone;
-            for (TherapyContents content : mModel.getSavedList()) {
+            for (TherapyContents content : mModel.getNewAddList()) {
                 clone = content.clone();
                 clone.setTherapistNamePriceItem(content.getTherapistInfo().clone());
+                mModel.addItemSavedlist(clone);
                 ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
                 for (Integer i : somdays) {
                     //hkyeom
                     mValues.get(mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(clone);
-                    mModel.totalCountCalculation(content);
+                    //mModel.totalCountCalculation(content);
                 }
             }
+
+            mModel.setNewAddList(null);
+        } else {
+            
         }
-        mModel.setAddList(null);
-        mModel.setCalendarMap(mValues);
+
+        //mModel.setCalendarSaveMap(mValues);
 
         notifyDataSetChanged();
     }
+
+
 
     private int getDayOfWeek(int dayOfMonth) {
         Calendar cal = Calendar.getInstance();
