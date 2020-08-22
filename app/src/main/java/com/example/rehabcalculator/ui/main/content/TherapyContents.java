@@ -45,23 +45,10 @@ public class TherapyContents implements Cloneable{
         return dayOfWeek;
     }
 
-    public int getNum() {
-        return num;
-    }
-
-    public Date[] getDate() {
-        return dates;
-    }
-
-
-
     public int getMonthlyFee() {
         return therapistInfo.getMonthlyfee();
     }
 
-    public void setDate(Date[] date) {
-        this.dates = date;
-    }
 
     public void setNum(int num) {
         this.num = num;

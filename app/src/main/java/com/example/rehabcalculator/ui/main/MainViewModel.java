@@ -15,8 +15,6 @@ public class MainViewModel extends ViewModel {
 
     private ArrayList<TherapyContents> add_init_list = new ArrayList<>();
 
-    private HashMap<String, Integer> countByTherapist = new HashMap<>();
-
     private HashMap<String, CalendarItem> calendar_init_map = new HashMap<>();
 
     private HashMap<String, CalendarItem> calendar_saved_map = null;
@@ -59,7 +57,11 @@ public class MainViewModel extends ViewModel {
 
     public void setCalendarSaveMap(HashMap<String, CalendarItem> map) {
         if(map != null) {
-            calendar_saved_map = map;
+            if(calendar_saved_map == null) {
+                calendar_saved_map = map;
+            } else {
+                calendar_saved_map.putAll(map);
+            }
         }
     }
 
@@ -68,40 +70,24 @@ public class MainViewModel extends ViewModel {
     }
 
     public void addCalendarItemWithContent(int year, int month, int dayofMonth, TherapyContents contents) {
-        if(calendar_saved_map.get(getMapKey(year, month, dayofMonth)) == null) {
+        if(calendar_saved_map.get(Utils.getCalendarMapKey(year, month, dayofMonth)) == null) {
             ArrayList<TherapyContents> list = new ArrayList<>();
             list.add(contents);
-            calendar_saved_map.put(getMapKey(year, month, dayofMonth), new CalendarItem(year, month, dayofMonth, list));
+            calendar_saved_map.put(Utils.getCalendarMapKey(year, month, dayofMonth), new CalendarItem(year, month, dayofMonth, list));
         } else {
-            calendar_saved_map.get(getMapKey(year, month, dayofMonth)).addListItem(contents);
+            calendar_saved_map.get(Utils.getCalendarMapKey(year, month, dayofMonth)).addListItem(contents);
         }
         //totalCountCalculation(contents);
     }
 
     private void addCalendarItemWithList(int year, int month, int dayofMonth, ArrayList<TherapyContents> list) {
         if(calendar_init_map.size() <dayofMonth || calendar_init_map.get(dayofMonth) == null) {
-            calendar_init_map.put(getMapKey(year, month, dayofMonth), new CalendarItem(year, month, dayofMonth, list));
+            calendar_init_map.put(Utils.getCalendarMapKey(year, month, dayofMonth), new CalendarItem(year, month, dayofMonth, list));
         } else {
-            calendar_init_map.get(getMapKey(year, month, dayofMonth)).addList(list);
+            calendar_init_map.get(Utils.getCalendarMapKey(year, month, dayofMonth)).addList(list);
         }
     }
 
-/*
-    public void totalCountCalculation(TherapyContents contents) {
-        if(countByTherapist.get(contents.getTherapistName()) == null) {
-            countByTherapist.put(contents.getTherapistName(), contents.getPrice()+contents.getMonthlyFee());
-        } else {
-            countByTherapist.put(contents.getTherapistName(), countByTherapist.get(contents.getTherapistName())+contents.getPrice());
-        }
-    }*/
-
-    public HashMap<String, Integer> getCountMap() {
-        return countByTherapist;
-    }
-
-    public String getMapKey(int year, int month, int dayofMonth){
-        return year+""+(month+1)+""+dayofMonth;
-    }
 
     public void setNewAddList(ArrayList<TherapyContents> list) {
         this.new_addlist = list;

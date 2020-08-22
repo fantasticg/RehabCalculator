@@ -2,9 +2,7 @@ package com.example.rehabcalculator.ui.main;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +11,13 @@ import android.widget.Button;
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
-import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.example.rehabcalculator.ui.main.utils.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.time.Month;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -102,6 +95,7 @@ public class CalendarFragment extends Fragment {
                 show_cal.set(Calendar.YEAR, year);
                 show_cal.set(Calendar.MONTH, month);
                 show_cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                mAdapter.saveCalendarData();
                 mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener, show_cal.getTime());
                 recyclerView.setAdapter(mAdapter);
                 btn.setText(Utils.calendarMonthBtn(show_cal.getTime()));
@@ -116,8 +110,11 @@ public class CalendarFragment extends Fragment {
         } );
 
         FloatingActionButton cal = view.findViewById(R.id.cal);
-        cal.setOnClickListener(clickview -> Snackbar.make(view, mViewModel.getCountMap().toString(), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        cal.setOnClickListener(clickview -> {
+            Snackbar.make(view,
+                    Utils.getMonthCheck(mViewModel.getCalendarSaveMap(), show_cal.get(Calendar.YEAR), show_cal.get(Calendar.MONTH), show_cal.getActualMaximum(Calendar.DAY_OF_MONTH)).toString(), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+        });
 
 
         // Set the adapter
@@ -144,6 +141,7 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        mAdapter.saveCalendarData();
     }
 
     @Override

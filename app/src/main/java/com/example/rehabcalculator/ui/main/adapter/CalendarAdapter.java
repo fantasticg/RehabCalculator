@@ -12,6 +12,7 @@ import com.example.rehabcalculator.ui.main.CalendarFragment.OnListFragmentIntera
 import com.example.rehabcalculator.ui.main.MainViewModel;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
 import com.example.rehabcalculator.ui.main.content.TherapyContents;
+import com.example.rehabcalculator.ui.main.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,11 +45,15 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         dayOfWeek_1st = cal.get(Calendar.DAY_OF_WEEK);
         mStartDayPosition = dayOfWeek_1st-1;
 
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
         int enddayofmonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        if(model.getCalendarSaveMap() == null) {
-            mValues = model.getCalendarInitList(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), enddayofmonth);
+        if(model.getCalendarSaveMap() == null ||
+                model.getCalendarSaveMap().get(Utils.getCalendarMapKey(year, month, 1))==null) {
+            mValues = model.getCalendarInitList(year, month, enddayofmonth);
         } else {
-            mValues = model.getCalendarSaveMap();
+            // mValues = (HashMap<String, CalendarItem>) ;
+            mValues = Utils.getYMCalendarItemList(model.getCalendarSaveMap(), year, month, enddayofmonth);
         }
     }
 
@@ -63,28 +68,17 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                 ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
                 for (Integer i : somdays) {
                     //hkyeom
-                    mValues.get(mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(clone);
+                    mValues.get(Utils.getCalendarMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(clone);
                     //mModel.totalCountCalculation(content);
                 }
             }
 
             mModel.setNewAddList(null);
-        } else {
-            
         }
 
         //mModel.setCalendarSaveMap(mValues);
 
         notifyDataSetChanged();
-    }
-
-
-
-    private int getDayOfWeek(int dayOfMonth) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(mDate);
-        cal.set(Calendar.DATE, dayOfMonth);
-        return cal.get(Calendar.DAY_OF_WEEK);
     }
 
     private ArrayList<Integer> getTheDatesOfSomeDayOfWeek(int dayOfweek) {
@@ -116,7 +110,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             holder.mContainer.setVisibility(View.INVISIBLE);
         } else {
             int nPosition = position - mdaysHeader - mStartDayPosition;
-            String positionKey = mModel.getMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), nPosition+1);
+            String positionKey = Utils.getCalendarMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), nPosition+1);
             holder.mItem = mValues.get(positionKey);
             holder.mDayView.setText(String.valueOf(mValues.get(positionKey).getDay()));
             if(mValues.get(positionKey).getList() != null) {
@@ -148,6 +142,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         int size = mValues.size();
         //mValues.clear();
         notifyItemRangeRemoved(0, size);
+    }
+
+    public void saveCalendarData() {
+        mModel.setCalendarSaveMap((HashMap<String, CalendarItem>) mValues.clone());
     }
 
 

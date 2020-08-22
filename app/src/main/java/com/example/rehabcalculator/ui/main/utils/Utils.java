@@ -89,4 +89,47 @@ public class Utils {
         return map;
     }
 
+    public static String getCalendarMapKey(int year, int month, int dayofMonth){
+        return year+""+(month+1)+""+dayofMonth;
+    }
+
+    //year, month 에 해당하는 캘린더정보만 리스트로 가져오기
+    public static HashMap<String, CalendarItem> getYMCalendarItemList(HashMap<String, CalendarItem> calendarMap, int year, int month, int enddayofmonth) {
+        HashMap<String, CalendarItem> ret = new HashMap<>();
+        for(int i =1; i <= enddayofmonth; i++) {
+            if(calendarMap.get(getCalendarMapKey(year, month, i)) != null) {
+                ret.put(getCalendarMapKey(year, month, i), calendarMap.get(getCalendarMapKey(year, month, i)));
+            }
+        }
+        return ret;
+    }
+
+    /*
+    public void totalCountCalculation(TherapyContents contents) {
+        if(countByTherapist.get(contents.getTherapistName()) == null) {
+            countByTherapist.put(contents.getTherapistName(), contents.getPrice()+contents.getMonthlyFee());
+        } else {
+            countByTherapist.put(contents.getTherapistName(), countByTherapist.get(contents.getTherapistName())+contents.getPrice());
+        }
+    }*/
+
+    public static HashMap<String, Integer> getMonthCheck(HashMap<String, CalendarItem> calendarMap, int year, int month, int enddayofmonth) {
+        HashMap<String, CalendarItem> list = getYMCalendarItemList(calendarMap, year, month, enddayofmonth);
+        HashMap<String, Integer> countByTherapist = new HashMap<>();
+        for(int day =1; day <= enddayofmonth; day++) {
+            ArrayList<TherapyContents> contentsList = list.get(getCalendarMapKey(year, month, day)).getList();
+            for(int j = 0; contentsList != null && j < contentsList.size() ; j++) {
+                TherapyContents contents = contentsList.get(j);
+                if (countByTherapist.get(contents.getTherapistName()) == null) {
+                    countByTherapist.put(contents.getTherapistName(), contents.getPrice() + contents.getMonthlyFee());
+                } else {
+                    countByTherapist.put(contents.getTherapistName(), countByTherapist.get(contents.getTherapistName()) + contents.getPrice());
+                }
+            }
+        }
+
+        return countByTherapist;
+    }
+
+
 }
