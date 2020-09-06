@@ -41,8 +41,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.ViewHolder> {
         this.mValues = model.getDayInitList();
         start_cal = Calendar.getInstance();
         end_cal = Calendar.getInstance();
-        long now = System.currentTimeMillis();
-        Date date = new Date(now);
+        Date date = model.getSelectCal().getTime();
         start_cal.setTime(date);
         end_cal.setTime(date);
 

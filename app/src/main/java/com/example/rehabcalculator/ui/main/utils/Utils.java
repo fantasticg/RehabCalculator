@@ -2,18 +2,33 @@ package com.example.rehabcalculator.ui.main.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.ArrayMap;
+import android.util.Log;
 
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.content.HolidayItem;
 import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class Utils {
 
@@ -93,6 +108,10 @@ public class Utils {
         return year+""+(month+1)+""+dayofMonth;
     }
 
+    public static String getEditDayTitle(int year, int month, int dayofMonth){
+        return year+"년 "+(month+1)+"월 "+dayofMonth+"일 일정수정";
+    }
+
     //year, month 에 해당하는 캘린더정보만 리스트로 가져오기
     public static HashMap<String, CalendarItem> getYMCalendarItemList(HashMap<String, CalendarItem> calendarMap, int year, int month, int enddayofmonth) {
         HashMap<String, CalendarItem> ret = new HashMap<>();
@@ -103,15 +122,6 @@ public class Utils {
         }
         return ret;
     }
-
-    /*
-    public void totalCountCalculation(TherapyContents contents) {
-        if(countByTherapist.get(contents.getTherapistName()) == null) {
-            countByTherapist.put(contents.getTherapistName(), contents.getPrice()+contents.getMonthlyFee());
-        } else {
-            countByTherapist.put(contents.getTherapistName(), countByTherapist.get(contents.getTherapistName())+contents.getPrice());
-        }
-    }*/
 
     public static HashMap<String, Integer> getMonthCheck(HashMap<String, CalendarItem> calendarMap, int year, int month, int enddayofmonth) {
         HashMap<String, CalendarItem> list = getYMCalendarItemList(calendarMap, year, month, enddayofmonth);
@@ -131,5 +141,60 @@ public class Utils {
         return countByTherapist;
     }
 
+    //http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=2020&solMonth=09&ServiceKey=kIamWpfH2pAqWc93inU1gD3kfhTA9FhpEPVlU0Lrhm86arMWWg8vn92k46PVKBGENQymzCp068PBRfUEM7I3bQ%3D%3D
+    //http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=2020&numOfRows=20&ServiceKey=kIamWpfH2pAqWc93inU1gD3kfhTA9FhpEPVlU0Lrhm86arMWWg8vn92k46PVKBGENQymzCp068PBRfUEM7I3bQ%3D%3D
+    public static HashMap<Integer, HolidayItem> getRestDeInfo(int y, int m) throws Exception {
+
+        StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo"); /*URL*/
+        urlBuilder.append("?" + URLEncoder.encode("solYear","UTF-8") + "=" + URLEncoder.encode(String.valueOf(y), "UTF-8")); /*연*/
+        //&solMonth=03
+        String month = (m+1)<10? "0"+String.valueOf(m+1) : String.valueOf(m+1);
+        urlBuilder.append("&" + URLEncoder.encode("solMonth","UTF-8") + "=" + URLEncoder.encode(month, "UTF-8"));
+        //urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("20", "UTF-8")); /*월*/
+        urlBuilder.append("&" + URLEncoder.encode("ServiceKey","UTF-8") +  "=kIamWpfH2pAqWc93inU1gD3kfhTA9FhpEPVlU0Lrhm86arMWWg8vn92k46PVKBGENQymzCp068PBRfUEM7I3bQ%3D%3D"); /*Service Key*/
+        URL url = new URL(urlBuilder.toString());
+
+        GetXMLTask task = new GetXMLTask();
+        return task.execute(url).get();
+
+    }
+
+
+    private static class GetXMLTask extends AsyncTask<URL, Void, HashMap<Integer, HolidayItem>>{
+        @Override
+        protected HashMap<Integer, HolidayItem> doInBackground(URL... urls) {
+            HashMap<Integer, HolidayItem> holidays = new HashMap<>();
+            Document doc = null;
+            try {
+
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                doc = db.parse(new InputSource(urls[0].openStream()));
+                doc.getDocumentElement().normalize();
+
+                NodeList nodeList = doc.getElementsByTagName("item");
+
+                for(int i = 0; i< nodeList.getLength(); i++){
+
+                    Node node = nodeList.item(i);
+                    Element fstElmnt = (Element) node;
+
+                    NodeList dateName = fstElmnt.getElementsByTagName("dateName");
+                    NodeList locdate = fstElmnt.getElementsByTagName("locdate");
+                    HolidayItem item = new HolidayItem(
+                            locdate.item(0).getChildNodes().item(0).getNodeValue(),
+                            dateName.item(0).getChildNodes().item(0).getNodeValue());
+
+                    holidays.put(item.getDayOfMonth(), item);
+                }
+
+
+            } catch (Exception e) {
+                Log.d("hkyeom", "Parsing Error");
+            }
+            return holidays;
+        }
+
+    }
 
 }

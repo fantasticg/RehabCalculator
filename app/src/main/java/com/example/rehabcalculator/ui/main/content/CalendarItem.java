@@ -15,6 +15,14 @@ public class CalendarItem {
         this.list = list;
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
     public int getDay() {
         return day;
     }

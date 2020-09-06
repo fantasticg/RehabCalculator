@@ -4,6 +4,8 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -11,18 +13,22 @@ import android.widget.Button;
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
+import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.example.rehabcalculator.ui.main.utils.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.time.Month;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.zip.Inflater;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,7 +46,6 @@ public class CalendarFragment extends Fragment {
     private int mColumnCount = 7;
     private OnListFragmentInteractionListener mListener;
     private MainViewModel mViewModel;
-    private Calendar show_cal = Calendar.getInstance();
     private RecyclerView recyclerView;
 
     /**
@@ -62,12 +67,6 @@ public class CalendarFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -84,24 +83,30 @@ public class CalendarFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.calendar_fragment, container, false);
 
+        Calendar current_cal = mViewModel.getSelectCal();
         long now = System.currentTimeMillis();
-        show_cal.setTime(new Date(now));
-        Date date = show_cal.getTime();
+        Date date = new Date(now);
+        current_cal.setTime(date);
+
         Button btn = view.findViewById(R.id.changemonth_btn);
         btn.setText(Utils.calendarMonthBtn(date));
 
         view.findViewById(R.id.changemonth_btn).setOnClickListener(v -> {
             DatePickerDialog datePicker = new DatePickerDialog(getContext(), 0, (dateview, year, month, dayOfMonth) -> {
-                show_cal.set(Calendar.YEAR, year);
-                show_cal.set(Calendar.MONTH, month);
-                show_cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                current_cal.set(Calendar.YEAR, year);
+                current_cal.set(Calendar.MONTH, month);
+                current_cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 mAdapter.saveCalendarData();
-                mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener, show_cal.getTime());
+                mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener);
                 recyclerView.setAdapter(mAdapter);
-                btn.setText(Utils.calendarMonthBtn(show_cal.getTime()));
-            }, show_cal.get(Calendar.YEAR), show_cal.get(Calendar.MONTH), show_cal.get(Calendar.DAY_OF_MONTH));
+                btn.setText(Utils.calendarMonthBtn(current_cal.getTime()));
+                mViewModel.setSelectCal(current_cal);
+            }, current_cal.get(Calendar.YEAR), current_cal.get(Calendar.MONTH), current_cal.get(Calendar.DAY_OF_MONTH));
             datePicker.show();
         });
+
+
 
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(clickview ->{
@@ -112,7 +117,7 @@ public class CalendarFragment extends Fragment {
         FloatingActionButton cal = view.findViewById(R.id.cal);
         cal.setOnClickListener(clickview -> {
             Snackbar.make(view,
-                    Utils.getMonthCheck(mViewModel.getCalendarSaveMap(), show_cal.get(Calendar.YEAR), show_cal.get(Calendar.MONTH), show_cal.getActualMaximum(Calendar.DAY_OF_MONTH)).toString(), Snackbar.LENGTH_LONG)
+                    mAdapter.getMonthCheck().toString(), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
         });
 
@@ -121,7 +126,7 @@ public class CalendarFragment extends Fragment {
         if (view.findViewById(R.id.list) instanceof RecyclerView) {
             recyclerView = view.findViewById(R.id.list);
             recyclerView.setLayoutManager(new GridLayoutManager(getContext(), mColumnCount));
-            mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener, date);
+            mAdapter = new CalendarAdapter(requireActivity(), mViewModel, mListener);
             recyclerView.setAdapter(mAdapter);
         }
 
@@ -134,9 +139,10 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.addTherapyInfo();//치료정보 추가 하고 난 후 캘린더에 데이터 업데이트
+        //mAdapter.addTherapyInfo();//치료정보 추가 하고 난 후 캘린더에 데이터 업데이트
 
     }
+
 
     @Override
     public void onStop() {
@@ -169,6 +175,13 @@ public class CalendarFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    /*
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_calendar, menu);
+    }
+    */
 
     /**
      * This interface must be implemented by activities that contain this

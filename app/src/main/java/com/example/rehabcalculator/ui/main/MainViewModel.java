@@ -6,13 +6,17 @@ import com.example.rehabcalculator.ui.main.utils.Const;
 import com.example.rehabcalculator.ui.main.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 public class MainViewModel extends ViewModel {
-
     private ArrayList<TherapyContents> add_init_list = new ArrayList<>();
 
     private HashMap<String, CalendarItem> calendar_init_map = new HashMap<>();
@@ -22,6 +26,16 @@ public class MainViewModel extends ViewModel {
     private ArrayList<TherapyContents> new_addlist = new ArrayList<>();
 
     private ArrayList<TherapyContents> save_addlist = new ArrayList<>();
+
+    private Calendar selectCal = Calendar.getInstance();
+
+    public void setSelectCal(Calendar cal) {
+        this.selectCal = cal;
+    }
+
+    public Calendar getSelectCal() {
+        return selectCal;
+    }
 
     public ArrayList<TherapyContents> getDayInitList() {
 
@@ -111,4 +125,5 @@ public class MainViewModel extends ViewModel {
     public ArrayList<TherapyContents> getSavedlist() {
         return save_addlist;
     }
+
 }

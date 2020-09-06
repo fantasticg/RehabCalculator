@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class TherapyContents implements Cloneable{
 
@@ -49,6 +50,9 @@ public class TherapyContents implements Cloneable{
         return therapistInfo.getMonthlyfee();
     }
 
+    public Date getStartTime() {
+        return dates[START_TIME];
+    }
 
     public void setNum(int num) {
         this.num = num;
@@ -71,6 +75,40 @@ public class TherapyContents implements Cloneable{
             e.printStackTrace();
         }
         return clone;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        TherapyContents objContents = (TherapyContents) obj;
+        boolean equal = true;
+        if(this.dayOfWeek != objContents.dayOfWeek) {
+            equal = false;
+        }
+        if(this.num != objContents.num) {
+            equal = false;
+        }
+
+        if(!this.dates[START_TIME].equals(objContents.dates[START_TIME])) {
+            equal = false;
+        }
+
+        if(!this.dates[END_TIME].equals(objContents.dates[END_TIME])) {
+            equal = false;
+        }
+
+        if(!this.therapistInfo.getTherapist().equals(objContents.therapistInfo.getTherapist())) {
+            equal = false;
+        }
+
+        if(this.therapistInfo.getPrice() != objContents.therapistInfo.getPrice()) {
+            equal = false;
+        }
+
+        if(this.therapistInfo.getMonthlyfee() != objContents.therapistInfo.getMonthlyfee()) {
+            equal = false;
+        }
+
+        return equal;
     }
 
 }

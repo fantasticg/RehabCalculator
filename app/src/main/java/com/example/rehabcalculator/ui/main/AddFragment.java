@@ -134,8 +134,7 @@ public class AddFragment extends Fragment {
         adapter = new AddAdapter(requireActivity(), mViewModel);
         mRecyclerView.setAdapter(adapter);
 
-        long now = System.currentTimeMillis();
-        Date date = new Date(now);
+        Date date = mViewModel.getSelectCal().getTime();
         startcal.setTime(date);
         endcal.setTime(date);
 
