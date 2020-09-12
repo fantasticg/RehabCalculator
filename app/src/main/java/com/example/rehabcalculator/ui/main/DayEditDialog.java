@@ -150,13 +150,16 @@ public class DayEditDialog extends DialogFragment {
 
             mAdapter.notifyDataSetChanged();
 
+            buttonsSettings();
+
             if(mAllCheck.isChecked()) {
                 dismiss();
             }
 
-            buttonsSettings();
 
         });
+
+        buttonsSettings();
 
         return view;
     }

@@ -215,5 +215,4 @@ public class AddFragment extends Fragment {
         }
     };
 
-
 }
