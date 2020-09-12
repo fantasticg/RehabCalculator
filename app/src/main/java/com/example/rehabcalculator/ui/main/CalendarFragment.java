@@ -1,11 +1,8 @@
 package com.example.rehabcalculator.ui.main;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,22 +10,16 @@ import android.widget.Button;
 import com.example.rehabcalculator.R;
 import com.example.rehabcalculator.ui.main.adapter.CalendarAdapter;
 import com.example.rehabcalculator.ui.main.content.CalendarItem;
-import com.example.rehabcalculator.ui.main.content.TherapyContents;
 import com.example.rehabcalculator.ui.main.utils.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.zip.Inflater;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,6 +36,7 @@ public class CalendarFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 7;
     private OnListFragmentInteractionListener mListener;
+    private OnEditDialogListener mDialogListener;
     private MainViewModel mViewModel;
     private RecyclerView recyclerView;
 
@@ -75,7 +67,7 @@ public class CalendarFragment extends Fragment {
         }
 
         mViewModel= new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-
+        mListener = item -> showThedaySchedule(item);
     }
 
     @Override
@@ -137,14 +129,6 @@ public class CalendarFragment extends Fragment {
     private CalendarAdapter mAdapter;
 
     @Override
-    public void onResume() {
-        super.onResume();
-        //mAdapter.addTherapyInfo();//치료정보 추가 하고 난 후 캘린더에 데이터 업데이트
-
-    }
-
-
-    @Override
     public void onStop() {
         super.onStop();
         mAdapter.saveCalendarData();
@@ -160,28 +144,11 @@ public class CalendarFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
-    /*
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_calendar, menu);
-    }
-    */
 
     /**
      * This interface must be implemented by activities that contain this
@@ -198,7 +165,34 @@ public class CalendarFragment extends Fragment {
         void onListFragmentInteraction(CalendarItem item);
     }
 
+    public interface OnEditDialogListener {
+        // TODO: Update argument type and name
+        void onAddFragmentInteraction();
+    }
 
+    private void showThedaySchedule(CalendarItem item) {
 
+        Bundle result = new Bundle();
+        result.putInt("item_year", item.getYear());
+        result.putInt("item_month", item.getMonth());
+        result.putInt("item_day", item.getDay());
+
+        DayEditDialog de = DayEditDialog.newInstance();
+        de.setArguments(result);
+        de.show(requireActivity().getSupportFragmentManager(), "EditDayDialog");
+        de.setDialogListener(new DayEditDialog.DialogListener() {
+            @Override
+            public void dialogClose() {
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void goAddFragment(int year, int month, int day) {
+                de.dismiss();
+                NavHostFragment.findNavController(CalendarFragment.this)
+                        .navigate(R.id.action_Calendar_to_Add);
+            }
+        });
+    }
 
 }

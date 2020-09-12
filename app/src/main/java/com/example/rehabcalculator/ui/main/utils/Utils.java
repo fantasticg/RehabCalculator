@@ -109,7 +109,7 @@ public class Utils {
     }
 
     public static String getEditDayTitle(int year, int month, int dayofMonth){
-        return year+"년 "+(month+1)+"월 "+dayofMonth+"일 일정수정";
+        return year+"년 "+(month+1)+"월 "+dayofMonth+"일";
     }
 
     //year, month 에 해당하는 캘린더정보만 리스트로 가져오기
@@ -121,6 +121,15 @@ public class Utils {
             }
         }
         return ret;
+    }
+
+    public static ArrayList<TherapyContents> getTheDaySchedules(HashMap<String, CalendarItem> calendarMap, int year, int month, int day) {
+        if(calendarMap.get(getCalendarMapKey(year, month, day)) != null) {
+            return calendarMap.get(getCalendarMapKey(year, month, day)).getList();
+        } else {
+            return null;
+        }
+
     }
 
     public static HashMap<String, Integer> getMonthCheck(HashMap<String, CalendarItem> calendarMap, int year, int month, int enddayofmonth) {

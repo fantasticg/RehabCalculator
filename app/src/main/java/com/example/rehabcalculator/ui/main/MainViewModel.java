@@ -10,10 +10,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 public class MainViewModel extends ViewModel {
@@ -65,10 +61,6 @@ public class MainViewModel extends ViewModel {
         return calendar_init_map;
     }
 
-    public HashMap<String, CalendarItem> getCalendarInitMap() {
-        return calendar_init_map;
-    }
-
     public void setCalendarSaveMap(HashMap<String, CalendarItem> map) {
         if(map != null) {
             if(calendar_saved_map == null) {
@@ -81,6 +73,13 @@ public class MainViewModel extends ViewModel {
 
     public HashMap<String, CalendarItem> getCalendarSaveMap() {
         return calendar_saved_map;
+    }
+
+
+    public void delCalendarItemWithContent(int year, int month, int dayofMonth, TherapyContents contents) {
+
+        calendar_saved_map.get(Utils.getCalendarMapKey(year, month, dayofMonth)).getList().remove(contents);
+
     }
 
     public void addCalendarItemWithContent(int year, int month, int dayofMonth, TherapyContents contents) {

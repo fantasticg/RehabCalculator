@@ -135,6 +135,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         if(position < mdaysHeader) { //월,화,수...
+            if(position == 0) {
+                holder.mDayView.setTextColor(Color.RED);
+            } else {
+                holder.mDayView.setTextColor(Color.BLACK);
+            }
+            holder.mHolidayView.setText("");
             holder.mDayView.setText(mContext.getResources().getStringArray(R.array.dayofweek)[position+1]);
             holder.mContainer.setVisibility(View.GONE);
         } else if(position < mdaysHeader + mStartDayPosition) { //1일 전에 비어있는 칸
@@ -155,24 +161,25 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             }
 
             holder.mDayView.setText(String.valueOf(mValues.get(positionKey).getDay()));
-            if(mValues.get(positionKey).getList() != null) {
-                for(int i = 0 ; i < mValues.get(positionKey).getList().size() && i <3; i++) {
+
+            if(mValues.get(positionKey).getList()!= null) {
+                for (int i = 0; i < mValues.get(positionKey).getList().size() && i < 3; i++) {
                     holder.mContents[i].setText(mValues.get(positionKey).getList().get(i).getTherapistName());
                 }
-                if(mValues.get(positionKey).getList().size() > 3) {
-                    holder.mMoreView.setText(mValues.get(positionKey).getList().size()-3+"+");
+                if (mValues.get(positionKey).getList().size() > 3) {
+                    holder.mMoreView.setText(mValues.get(positionKey).getList().size() - 3 + "+");
                 }
-
-                holder.mView.setOnClickListener(v -> {
-
-                    if (null != mListener) {
-                        // Notify the active callbacks interface (the activity, if the
-                        // fragment is attached to one) that an item has been selected.
-                        mListener.onListFragmentInteraction(holder.mItem);
-                    }
-                });
-
             }
+
+            holder.mView.setOnClickListener(v -> {
+
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.onListFragmentInteraction(holder.mItem);
+                }
+            });
+
 
 
 

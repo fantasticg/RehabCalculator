@@ -1,7 +1,7 @@
 package com.example.rehabcalculator.ui.main;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +32,57 @@ public class DayEditDialog extends DialogFragment {
     private Button mAdd;
     private Button mEdit;
     private Button mDel;
+    private CheckBox mAllCheck;
+    private ArrayList<Boolean> mCheckList;
+    private int mYear = 0;
+    private int mMonth = 0;
+    private int mDay = 0;
+    private DialogListener mDialogListener;
 
+    private CompoundButton.OnCheckedChangeListener mCheckListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if(buttonView == mAllCheck) {
+                for(int i = 0 ; i < mCheckList.size(); i++) {
+                    mCheckList.set(i, isChecked);
+                }
+                mAdapter.notifyDataSetChanged();
+                buttonsSettings();
+                return;
+            }
+            mCheckList.set((Integer) buttonView.getTag(), isChecked);
+
+            boolean checked = true;
+            for(int i = 0 ; i < mCheckList.size()-1; i++) {
+                checked = checked && mCheckList.get(i);
+            }
+
+            mAllCheck.setOnCheckedChangeListener(null);
+            mAllCheck.setChecked(checked);
+            mAllCheck.setOnCheckedChangeListener(mCheckListener);
+
+            buttonsSettings();
+
+
+        }
+    };
+
+    private void buttonsSettings() {
+        int check_count = mAdapter.checkCount();
+        if (check_count == 0) {
+            mAdd.setEnabled(true);
+            mEdit.setEnabled(false);
+            mDel.setEnabled(false);
+        } else if (check_count == 1) {
+            mAdd.setEnabled(false);
+            mEdit.setEnabled(true);
+            mDel.setEnabled(true);
+        } else {
+            mAdd.setEnabled(false);
+            mEdit.setEnabled(false);
+            mDel.setEnabled(true);
+        }
+    }
 
     public static DayEditDialog newInstance() {
 
@@ -58,46 +108,84 @@ public class DayEditDialog extends DialogFragment {
         RecyclerView rc = view.findViewById(R.id.daylist_list);
         rc.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        int year =0;
-        int month =0;
-        int day =0;
+        ArrayList<TherapyContents> theDaySchedules = null;
 
         if (getArguments() != null) {
             //item_year item_month item_day
-            year = getArguments().getInt("item_year");
-            month = getArguments().getInt("item_month");
-            day = getArguments().getInt("item_day");
+            mYear = getArguments().getInt("item_year");
+            mMonth = getArguments().getInt("item_month");
+            mDay = getArguments().getInt("item_day");
 
-            HashMap<String, CalendarItem> temp = Utils.getYMCalendarItemList(mViewModel.getCalendarSaveMap(), year, month, day);
-            mAdapter = new DayEditAdapter(temp.get(Utils.getCalendarMapKey(year, month, day)).getList());
+            theDaySchedules = Utils.getTheDaySchedules(mViewModel.getCalendarSaveMap(), mYear, mMonth, mDay);
+            mAdapter = new DayEditAdapter(theDaySchedules);
             rc.setAdapter(mAdapter);
 
         }
-
-        view.findViewById(R.id.daylist_alldel).setOnClickListener(v-> {
-            mAdapter.allCheckOrNone(((CheckBox)v).isChecked());
-        });
+        mAllCheck = view.findViewById(R.id.daylist_alldel);
+        mAllCheck.setText(Utils.getEditDayTitle(mYear, mMonth,mDay));
+        mAllCheck.setOnCheckedChangeListener(mCheckListener);
+        mAllCheck.setTag(theDaySchedules != null ? theDaySchedules.size() : 0);
+        if(theDaySchedules == null || theDaySchedules.isEmpty()) {
+            mAllCheck.setEnabled(false);
+        } else {
+            mAllCheck.setEnabled(true);
+        }
         mAdd = view.findViewById(R.id.daylist_add);
+        mAdd.setOnClickListener(v -> {
+            mDialogListener.goAddFragment(mYear, mMonth, mDay);
+        });
         mEdit = view.findViewById(R.id.daylist_edit);
         mDel = view.findViewById(R.id.daylist_del);
+        mDel.setOnClickListener(v -> {
+
+            //선택한 스케줄 삭제.
+            HashMap<String, CalendarItem> temp2 = Utils.getYMCalendarItemList(mViewModel.getCalendarSaveMap(), mYear, mMonth, mDay);
+            ArrayList<TherapyContents> tempList = temp2.get(Utils.getCalendarMapKey(mYear, mMonth, mDay)).getList();
+            for(int i = tempList.size()-1 ; i >= 0 ; i--) {
+                if(mCheckList.get(i).equals(Boolean.TRUE)) {
+                    mViewModel.delCalendarItemWithContent(mYear, mMonth, mDay, tempList.get(i));
+                    mCheckList.remove(i);
+                }
+            }
+
+            mAdapter.notifyDataSetChanged();
+
+            if(mAllCheck.isChecked()) {
+                dismiss();
+            }
+
+            buttonsSettings();
+
+        });
 
         return view;
+    }
+
+    public void setDialogListener(DialogListener listener) {
+        mDialogListener = listener;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        mDialogListener.dialogClose();
     }
 
     public class DayEditAdapter extends RecyclerView.Adapter<DayEditAdapter.ViewHolder> {
 
         private ArrayList<TherapyContents> mList;
 
-        private ArrayList<Boolean> mCheckList;
-
-        private int checkCount = 0;
 
         DayEditAdapter(ArrayList<TherapyContents> list) {
             mList = list;
             mCheckList = new ArrayList<>();
-            for(int i=0;i< mList.size();i++){
+
+            //제일 마지막값은 mAllCheck 값임.
+            for(int i=0;mList != null && i<= mList.size();i++){
                 mCheckList.add(new Boolean(Boolean.FALSE));
             }
+
+
         }
 
 
@@ -112,35 +200,28 @@ public class DayEditDialog extends DialogFragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
             holder.mEditDayCheck.setText(mList.get(position).getTherapistName());
-            holder.mEditDayCheck.setChecked(mCheckList.get(position));
+            holder.mEditDayCheck.setTag(position);
+            holder.mEditDayCheck.setChecked(mCheckList.get(mCheckList.size()-1));
             holder.mEditStartTimeTV.setText(Utils.timeTextOnBtn(mList.get(position).getStartTime()));
-            holder.mEditDayCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if(isChecked) {
-                        checkCount++;
-                        mCheckList.set(position, Boolean.TRUE);
-                    } else {
-                        checkCount--;
-                        mCheckList.set(position, Boolean.FALSE);
-                    }
-                    Log.d("hkyeom", "checkCount : " + checkCount);
-                }
-            });
+            holder.mEditDayCheck.setOnCheckedChangeListener(mCheckListener);
             holder.mView.setOnClickListener(v -> holder.mEditDayCheck.setChecked(!holder.mEditDayCheck.isChecked()));
         }
 
         @Override
         public int getItemCount() {
-            return mList.size();
+            return mList!=null? mList.size() : 0;
         }
 
-        public void allCheckOrNone(boolean checked) {
-            for(int i = 0 ; i < mCheckList.size(); i++) {
-                mCheckList.set(i, checked);
+        public int checkCount() {
+            int ret = 0;
+            for(boolean checked : mCheckList) {
+                if(checked) {
+                    ret++;
+                }
             }
-            notifyDataSetChanged();
+            return ret;
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -161,5 +242,12 @@ public class DayEditDialog extends DialogFragment {
             }
         }
 
+    }
+
+    public interface DialogListener
+    {
+        public void dialogClose();//or whatever args you want
+
+        public void goAddFragment(int year, int month, int day);
     }
 }
