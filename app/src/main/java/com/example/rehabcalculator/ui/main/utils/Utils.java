@@ -159,7 +159,7 @@ public class Utils {
         //&solMonth=03
         String month = (m+1)<10? "0"+String.valueOf(m+1) : String.valueOf(m+1);
         urlBuilder.append("&" + URLEncoder.encode("solMonth","UTF-8") + "=" + URLEncoder.encode(month, "UTF-8"));
-        //urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("20", "UTF-8")); /*월*/
+        //urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("20", "UTF-8"));
         urlBuilder.append("&" + URLEncoder.encode("ServiceKey","UTF-8") +  "=kIamWpfH2pAqWc93inU1gD3kfhTA9FhpEPVlU0Lrhm86arMWWg8vn92k46PVKBGENQymzCp068PBRfUEM7I3bQ%3D%3D"); /*Service Key*/
         URL url = new URL(urlBuilder.toString());
 

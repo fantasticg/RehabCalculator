@@ -19,7 +19,9 @@ public class MainViewModel extends ViewModel {
 
     private HashMap<String, CalendarItem> calendar_saved_map = null;
 
-    private ArrayList<TherapyContents> new_addlist = new ArrayList<>();
+    private ArrayList<TherapyContents> new_fixlist = new ArrayList<>();
+
+    private ArrayList<TherapyContents> saved_fixlist = new ArrayList<>();
 
     private ArrayList<TherapyContents> save_addlist = new ArrayList<>();
 
@@ -102,13 +104,15 @@ public class MainViewModel extends ViewModel {
     }
 
 
-    public void setNewAddList(ArrayList<TherapyContents> list) {
-        this.new_addlist = list;
+    public void setNewFixList(ArrayList<TherapyContents> list) {
+        this.new_fixlist = list;
+        if(list != null) {
+            this.saved_fixlist.addAll(new_fixlist);
+        }
     }
 
-
-    public ArrayList<TherapyContents> getNewAddList() {
-        return this.new_addlist;
+    public ArrayList<TherapyContents> getNewAddFixList() {
+        return this.new_fixlist;
     }
 
     public void setAddSaveList(ArrayList<TherapyContents> list) {

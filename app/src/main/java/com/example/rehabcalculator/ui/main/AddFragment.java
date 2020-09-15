@@ -116,7 +116,7 @@ public class AddFragment extends Fragment {
                     //content.setMonthlyFee();
                 }
 
-                mViewModel.setNewAddList(list);
+                mViewModel.setNewFixList(list);
 
             } else { //1회성
                 EditText onetime_numbers = view.findViewById(R.id.onetime_numbers);

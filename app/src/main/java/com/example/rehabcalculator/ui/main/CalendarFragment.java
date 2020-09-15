@@ -94,6 +94,7 @@ public class CalendarFragment extends Fragment {
                 recyclerView.setAdapter(mAdapter);
                 btn.setText(Utils.calendarMonthBtn(current_cal.getTime()));
                 mViewModel.setSelectCal(current_cal);
+
             }, current_cal.get(Calendar.YEAR), current_cal.get(Calendar.MONTH), current_cal.get(Calendar.DAY_OF_MONTH));
             datePicker.show();
         });

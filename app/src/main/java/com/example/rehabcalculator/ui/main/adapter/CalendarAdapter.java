@@ -54,20 +54,23 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         int month = cal.get(Calendar.MONTH);
         try {
              holidays = Utils.getRestDeInfo(year, month);
-            Log.d("hkyeom", "aaa");
+            Log.d("hkyeom", "holidays size: " + holidays.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         int enddayofmonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+
         if(model.getCalendarSaveMap() == null ||
-                model.getCalendarSaveMap().get(Utils.getCalendarMapKey(year, month, 1))==null) {
+                model.getCalendarSaveMap().get(Utils.getCalendarMapKey(year, month, 1))==null
+        ) {
             mValues = model.getCalendarInitList(year, month, enddayofmonth);
         } else {
-            // mValues = (HashMap<String, CalendarItem>) ;
             mValues = Utils.getYMCalendarItemList(model.getCalendarSaveMap(), year, month, enddayofmonth);
         }
         addTherapyInfo();
+
+
     }
 
     public HashMap<String, Integer> getMonthCheck() {
@@ -78,37 +81,39 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     //치료정보 추가 페이지에서 추가한 정보를 달력에 기록한다.
     public void addTherapyInfo() {
 
-        ArrayList<TherapyContents> add_list;
-        if(mModel.getNewAddList() != null) {
-            add_list = mModel.getNewAddList();
+        ArrayList<TherapyContents> add_list = null;
+        if(mModel.getNewAddFixList() != null) {
+            add_list = mModel.getNewAddFixList();
         } else {
             add_list = mModel.getSavedlist();
         }
 
-        for (TherapyContents content : add_list) {
-            TherapyContents clone = content.clone();
-            if(!mModel.getSavedlist().contains(content)) {
-                mModel.addItemSavedlist(clone);
-            }
-
-            ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
-            for (Integer i : somdays) {
-                boolean equal = false;
-                ArrayList<TherapyContents> idayConList = mValues.get(Utils.getCalendarMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).getList();
-                for(int j = 0; idayConList != null &&  j < idayConList.size(); j++) {
-                    TherapyContents contents = idayConList.get(j);
-                    if(contents.equals(clone)) {
-                        equal = true;
-                    }
+        if(add_list!=null) {
+            for (TherapyContents content : add_list) {
+                TherapyContents clone = content.clone();
+                if (!mModel.getSavedlist().contains(content)) {
+                    mModel.addItemSavedlist(clone);
                 }
 
-                //hkyeom
-                if(!equal) {
-                    mValues.get(Utils.getCalendarMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(clone);
+                ArrayList<Integer> somdays = getTheDatesOfSomeDayOfWeek(content.getDayOfWeek());
+                for (Integer i : somdays) {
+                    boolean equal = false;
+                    ArrayList<TherapyContents> idayConList = mValues.get(Utils.getCalendarMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).getList();
+                    for (int j = 0; idayConList != null && j < idayConList.size(); j++) {
+                        TherapyContents contents = idayConList.get(j);
+                        if (contents.equals(clone)) {
+                            equal = true;
+                        }
+                    }
+
+                    //hkyeom
+                    if (!equal) {
+                        mValues.get(Utils.getCalendarMapKey(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), i)).addListItem(clone);
+                    }
                 }
             }
         }
-        mModel.setNewAddList(null);
+        mModel.setNewFixList(null);
 
         notifyDataSetChanged();
     }
